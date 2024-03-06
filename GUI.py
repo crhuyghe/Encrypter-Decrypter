@@ -1,9 +1,11 @@
 import contextlib
 import tkinter as tk
 import asyncio
-from tkinter import ttk
+from tkinter import ttk, filedialog as fd
 from FlatButton import FlatButton
 from ResizingText import ResizingText
+
+import EncryptionManagement
 
 class AsyncWindow(tk.Tk):
     """This is a special variation of the tkinter Tk object configured to run with asyncio functions"""
@@ -33,7 +35,8 @@ class AsyncWindow(tk.Tk):
         ttk.Style().configure('.', font=('Segoe UI Symbol', 16), background="#24272b", foreground="#b6bfcc")
         ttk.Style().configure("border.TFrame", background="#969fac")
 
-
+        self.file_to_encrypt = ""
+        self.file_to_decrypt = ""
 
         # Initialize all the GUI elements
         self.main_frame = ttk.Frame(self)
@@ -43,9 +46,11 @@ class AsyncWindow(tk.Tk):
 
         self.encryption_label = ttk.Label(self.encrypter_frame, text="Encryption", font=("Segoe UI Bold", 30))
         self.encrypter_file_label = ttk.Label(self.encrypter_frame, text="Choose a file to encrypt", padding=10)
-        self.encrypter_file_button = FlatButton(self.encrypter_frame, text="Open file", font=("Segoe UI", 12))
+        self.encrypter_file_button = FlatButton(self.encrypter_frame, text="Open file", font=("Segoe UI", 12),
+                                                command=self.select_unencrypted_file)
 
-        self.encrypt_button = FlatButton(self.encrypter_frame, text="Encrypt", font=("Segoe UI", 12))
+        self.encrypt_button = FlatButton(self.encrypter_frame, text="Encrypt", font=("Segoe UI", 12),
+                                         command=lambda: self.run_as_task(self.encrypt))
         self.encrypter_key_label = ttk.Label(self.encrypter_frame, text="Use the below key for decryption")
         self.encrypter_key_field = ResizingText(self.encrypter_frame, dynamic=True, alt_color=True, min_height=5,
                                                 width=50, text_padding=10)
@@ -53,17 +58,20 @@ class AsyncWindow(tk.Tk):
         self.encryption_label.grid(row=0, column=1, columnspan=3, pady=(40, 200))
         self.encrypter_file_label.grid(row=2, column=2)
         self.encrypter_file_button.grid(row=3, column=2, pady=(0, 200))
-        self.encrypter_key_label.grid(row=4, column=2)
-        self.encrypter_key_field.grid(row=5, column=1, columnspan=3)
+        self.encrypt_button.grid(row=4, column=2, pady=(0, 20))
+        self.encrypter_key_label.grid(row=5, column=2)
+        self.encrypter_key_field.grid(row=6, column=1, columnspan=3)
 
         self.decrypter_frame = ttk.Frame(self.main_frame)
 
         self.decryption_label = ttk.Label(self.decrypter_frame, text="Decryption", font=("Segoe UI Bold", 30))
         self.decrypter_file_label = ttk.Label(self.decrypter_frame, text="Choose a encrypted file to decrypt",
                                               padding=10)
-        self.decrypter_file_button = FlatButton(self.decrypter_frame, text="Open file", font=("Segoe UI", 12))
+        self.decrypter_file_button = FlatButton(self.decrypter_frame, text="Open file", font=("Segoe UI", 12),
+                                                command=self.select_encrypted_file)
 
-        self.decrypt_button = FlatButton(self.decrypter_frame, text="Decrypt", font=("Segoe UI", 12))
+        self.decrypt_button = FlatButton(self.decrypter_frame, text="Decrypt", font=("Segoe UI", 12),
+                                         command=lambda: self.run_as_task(self.decrypt))
         self.decrypter_key_label = ttk.Label(self.decrypter_frame, text="Input decryption key")
         self.decrypter_key_field = ResizingText(self.decrypter_frame, dynamic=True, min_height=5, width=50,
                                                 text_padding=10)
@@ -72,8 +80,9 @@ class AsyncWindow(tk.Tk):
         self.decryption_label.grid(row=0, column=1, columnspan=3, pady=(40, 200))
         self.decrypter_file_label.grid(row=2, column=2)
         self.decrypter_file_button.grid(row=3, column=2, pady=(0, 200))
-        self.decrypter_key_label.grid(row=4, column=2)
-        self.decrypter_key_field.grid(row=5, column=1, columnspan=3)
+        self.decrypt_button.grid(row=4, column=2, pady=(0, 20))
+        self.decrypter_key_label.grid(row=5, column=2)
+        self.decrypter_key_field.grid(row=6, column=1, columnspan=3)
 
         # self.encrypter_frame.rowconfigure(0, weight=1)
         # self.encrypter_frame.rowconfigure(4, weight=1)
@@ -90,6 +99,48 @@ class AsyncWindow(tk.Tk):
         self.border.grid(row=0, column=1, sticky="ns")
         self.decrypter_frame.grid(row=0, column=2, sticky="nsew")
         self.main_frame.pack(fill="both", expand=1)
+
+    def select_unencrypted_file(self):
+        """Selects a file for encryption"""
+        file_name = fd.askopenfilename(filetypes=[('All Files', '*.*')])
+        if len(file_name) > 0:
+            self.file_to_encrypt = file_name
+
+    def select_encrypted_file(self):
+        """Selects a file for decryption"""
+        file_name = fd.askopenfilename(filetypes=[('All Files', '*.*')])
+        if len(file_name) > 0:
+            self.file_to_decrypt = file_name
+
+
+    async def encrypt(self):
+        """Starts process of encrypting the selected file"""
+        new_file_name = fd.asksaveasfilename(
+            confirmoverwrite=True,
+            filetypes=[('All Files', '*.*')],
+            defaultextension=None,
+            title="Save encrypted file",
+        )
+        if new_file_name != '':
+            encrypted_string, key = await asyncio.to_thread(EncryptionManagement.encrypt_file, self.file_to_encrypt)
+            self.encrypter_key_field.change_text(key)
+            with open(new_file_name, "w") as nfile:
+                nfile.write(encrypted_string)
+
+    async def decrypt(self):
+        """Starts process of decrypting the selected file"""
+        decrypted_binary_string, name = await asyncio.to_thread(EncryptionManagement.decrypt_file,
+                                                                self.file_to_decrypt,
+                                                                self.decrypter_key_field.get_text())
+        new_file_name = fd.asksaveasfilename(
+            confirmoverwrite=True,
+            filetypes=[('All Files', '*.*')],
+            initialfile=name,
+            title="Save encrypted file",
+        )
+        if new_file_name != '':
+            with open(new_file_name, "wb") as nfile:
+                nfile.write(decrypted_binary_string)
 
     def clear_window(self, destroy=True, grid=True):
         """Clears the visible window of all widgets. Destroys the widgets if specified.
