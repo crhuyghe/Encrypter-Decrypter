@@ -51,6 +51,7 @@ def deconstructMatrix(matrix):
             string += str(matrix[j][i])
     return string
     
+# Use s_box to substitute bytes
 def subBytes(state):
 
     def subBlock(block):
@@ -65,8 +66,7 @@ def subBytes(state):
     state = createMatrix(resultState)
     return state
 
-
-    
+# Use s_box to reverse substitutions
 def unsubBytes(state):
 
     def unsubBlock(s_box_value):
