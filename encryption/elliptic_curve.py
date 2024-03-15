@@ -49,8 +49,8 @@ curve_params = {
 
 curve = EllipticCurve(**curve_params)
 
-def getKey(key, start):
-    if start is None:
-        return curve.scalar_multiply(key, (curve_params["g_x"], curve_params["g_y"]))
+def getKey(private, coordinates):
+    if coordinates is None:
+        return curve.scalar_multiply(private, (curve_params["g_x"], curve_params["g_y"]))
     else:
-        return curve.scalar_multiply(key, start)
+        return curve.scalar_multiply(private, coordinates)
