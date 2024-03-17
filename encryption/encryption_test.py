@@ -17,7 +17,7 @@ if shared_secret_alice == shared_secret_bob:
 
 key = hex(shared_secret_alice)[2:].zfill(32)
 
-data_original = key
+data_original = hex(randbits(420))[2:]
 print("original: ", data_original)
 data_encrypted = encrypt(data_original, key)
 print("encrypted:", data_encrypted)
