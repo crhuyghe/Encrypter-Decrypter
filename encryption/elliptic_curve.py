@@ -1,4 +1,4 @@
-# Based on secp128r2
+# Curve characteristics as detailed by SECG's secp128r2
 
 class EllipticCurve:
     def __init__(self, p, a, b, g_x, g_y, order, cofactor):
@@ -51,4 +51,3 @@ def generatePublicKey(private):
 
 def generateSharedSecret(private, coordinates):
     return curve.scalar_multiply(private, coordinates)
-
