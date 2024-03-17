@@ -1,8 +1,14 @@
 from aes_library import *
 
 def encrypt(data, key):
+    def padHex(data):
+        nibbles = len(data)
+        remainder = nibbles % 32
+        toFit = nibbles + (32 - remainder)
+        return data.zfill(toFit)
+
+    data = padHex(data)
     initialKey = createMatrix([key[i:i+2].zfill(2) for i in range(0, len(key), 2)])
-    data = createMatrix([data[i:i+2].zfill(2) for i in range(0, len(data), 2)])
 
     roundKeys = [initialKey]
     for round_number in range(0, 10):
@@ -23,13 +29,17 @@ def encrypt(data, key):
         # Returns 1D hex string
         return deconstructMatrix(data)
     
-    # TODO: Split data into 128-bit chunks
+    encryptedMessage = ""
 
-    return encrypt_block(data, roundKeys)
+    for i in range(0, len(data), 32):
+        block = data[i:i+32]
+        block = createMatrix([block[i:i+2].zfill(2) for i in range(0, len(block), 2)])
+        encryptedMessage += encrypt_block(block, roundKeys)
+
+    return encryptedMessage
 
 def decrypt(data, key):
     initialKey = createMatrix([key[i:i+2].zfill(2) for i in range(0, len(key), 2)])
-    data = createMatrix([data[i:i+2].zfill(2) for i in range(0, len(data), 2)])
 
     roundKeys = [initialKey]
     for round_number in range(0, 10):
@@ -50,8 +60,13 @@ def decrypt(data, key):
         # Returns 1D hex string
         return deconstructMatrix(data)
     
-    # TODO: Split data into 128-bit chunks
+    decryptedMessage = ""
+
+    for i in range(0, len(data), 32):
+        block = data[i:i+32]
+        block = createMatrix([block[i:i+2].zfill(2) for i in range(0, len(block), 2)])
+        decryptedMessage += decrypt_block(block, roundKeys)
     
-    return decrypt_block(data, roundKeys)
+    return decryptedMessage.lstrip('0')
         
 

@@ -54,22 +54,22 @@ def deconstructMatrix(matrix):
 # Use s_box to substitute bytes
 def subBytes(state):
 
-    def subBlock(block):
-        row, column = block
+    def subOneByte(byte):
+        row, column = byte
         row, column = int(row, 16), int(column, 16)
         return hex(AES_S_BOX[row * 16 + column])[2:].zfill(2)
     
     resultState = []
     for row in range(0, len(state)):
         for col in range(0, len(state)):
-            resultState.append(subBlock(state[row][col]))
+            resultState.append(subOneByte(state[row][col]))
     state = createMatrix(resultState)
     return state
 
 # Use s_box to reverse substitutions
 def unsubBytes(state):
 
-    def unsubBlock(s_box_value):
+    def unsubOneByte(s_box_value):
         index = AES_S_BOX.index(int(s_box_value, 16))
         row = hex(index // 16)[2:]
         column = hex(index % 16)[2:]
@@ -78,7 +78,7 @@ def unsubBytes(state):
     resultState = []
     for row in range(0, len(state)):
         for col in range(0, len(state)):
-            resultState.append(unsubBlock(state[row][col]))
+            resultState.append(unsubOneByte(state[row][col]))
     state = createMatrix(resultState)
     return state
         
