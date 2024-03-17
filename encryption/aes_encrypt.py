@@ -9,7 +9,6 @@ def encrypt(data, key):
 
     data = padHex(data)
     initialKey = createMatrix([key[i:i+2].zfill(2) for i in range(0, len(key), 2)])
-    #data = createMatrix([data[i:i+2].zfill(2) for i in range(0, len(data), 2)])
 
     roundKeys = [initialKey]
     for round_number in range(0, 10):
@@ -41,7 +40,6 @@ def encrypt(data, key):
 
 def decrypt(data, key):
     initialKey = createMatrix([key[i:i+2].zfill(2) for i in range(0, len(key), 2)])
-    #data = createMatrix([data[i:i+2].zfill(2) for i in range(0, len(data), 2)])
 
     roundKeys = [initialKey]
     for round_number in range(0, 10):
