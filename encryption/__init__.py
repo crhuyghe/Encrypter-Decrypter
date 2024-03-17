@@ -1,7 +1,7 @@
 from aes_encrypt import encrypt, decrypt
-from elliptic_curve import getKey
+from elliptic_curve import generatePublicKey, generateSharedSecret
 
-allowed_imports = [encrypt, decrypt, getKey]
+allowed_imports = [encrypt, decrypt, generatePublicKey, generateSharedSecret]
 
 __all__ = allowed_imports
 

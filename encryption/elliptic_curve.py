@@ -46,8 +46,9 @@ curve_params = {
 
 curve = EllipticCurve(**curve_params)
 
-def getKey(private, coordinates):
-    if coordinates is None:
-        return curve.scalar_multiply(private, (curve_params["g_x"], curve_params["g_y"]))
-    else:
-        return curve.scalar_multiply(private, coordinates)
+def generatePublicKey(private):
+    return curve.scalar_multiply(private, (curve_params["g_x"], curve_params["g_y"]))
+
+def generateSharedSecret(private, coordinates):
+    return curve.scalar_multiply(private, coordinates)
+
