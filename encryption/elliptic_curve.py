@@ -26,13 +26,10 @@ class EllipticCurve:
 
         return (x, y)
 
-    def point_double(self, P):
-        return self.point_add(P, P)
-
     def scalar_multiply(self, k, P):
         result = None
         for bit in bin(k)[2:]:
-            result = self.point_double(result)
+            result = self.point_add(result, result)
             if bit == '1':
                 result = self.point_add(result, P)
         return result
