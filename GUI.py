@@ -51,9 +51,11 @@ class AsyncWindow(tk.Tk):
 
         self.encrypt_button = FlatButton(self.encrypter_frame, text="Encrypt", font=("Segoe UI", 12),
                                          command=lambda: self.run_as_task(self.encrypt))
-        self.encrypter_key_label = ttk.Label(self.encrypter_frame, text="Use the below key for decryption")
-        self.encrypter_key_field = ResizingText(self.encrypter_frame, dynamic=True, alt_color=True, min_height=5,
+        self.encrypter_key_label = ttk.Label(self.encrypter_frame,
+                                             text="Input the recipient's public key for encryption")
+        self.encrypter_key_field = ResizingText(self.encrypter_frame, dynamic=True, min_height=5,
                                                 width=50, text_padding=10)
+        self.encrypter_key_field.toggle_modification()
 
         self.encryption_label.grid(row=0, column=1, columnspan=3, pady=(40, 200))
         self.encrypter_file_label.grid(row=2, column=2)
@@ -72,10 +74,10 @@ class AsyncWindow(tk.Tk):
 
         self.decrypt_button = FlatButton(self.decrypter_frame, text="Decrypt", font=("Segoe UI", 12),
                                          command=lambda: self.run_as_task(self.decrypt))
-        self.decrypter_key_label = ttk.Label(self.decrypter_frame, text="Input decryption key")
+        self.decrypter_key_label = ttk.Label(self.decrypter_frame,
+                                             text="Use this public key to encrypt for this instance")
         self.decrypter_key_field = ResizingText(self.decrypter_frame, dynamic=True, min_height=5, width=50,
-                                                text_padding=10)
-        self.decrypter_key_field.toggle_modification()
+                                                text_padding=10, alt_color=True)
 
         self.decryption_label.grid(row=0, column=1, columnspan=3, pady=(40, 200))
         self.decrypter_file_label.grid(row=2, column=2)
@@ -122,6 +124,7 @@ class AsyncWindow(tk.Tk):
             title="Save encrypted file",
         )
         if new_file_name != '':
+            # These lines use an unimplemented function. Switch them to using the stuff in the encryption folder.
             encrypted_string, key = await asyncio.to_thread(EncryptionManagement.encrypt_file, self.file_to_encrypt)
             self.encrypter_key_field.change_text(key)
             with open(new_file_name, "w") as nfile:
@@ -129,6 +132,7 @@ class AsyncWindow(tk.Tk):
 
     async def decrypt(self):
         """Starts process of decrypting the selected file"""
+        # These lines use an unimplemented function. Switch them to using the stuff in the encryption folder.
         decrypted_binary_string, name = await asyncio.to_thread(EncryptionManagement.decrypt_file,
                                                                 self.file_to_decrypt,
                                                                 self.decrypter_key_field.get_text())
