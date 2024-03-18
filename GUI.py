@@ -74,17 +74,23 @@ class AsyncWindow(tk.Tk):
 
         self.decrypt_button = FlatButton(self.decrypter_frame, text="Decrypt", font=("Segoe UI", 12),
                                          command=lambda: self.run_as_task(self.decrypt))
-        self.decrypter_key_label = ttk.Label(self.decrypter_frame,
-                                             text="Use this public key to encrypt for this instance")
-        self.decrypter_key_field = ResizingText(self.decrypter_frame, dynamic=True, min_height=5, width=50,
-                                                text_padding=10, alt_color=True)
+        self.public_key_label = ttk.Label(self.decrypter_frame,
+                                          text="Use this public key to encrypt for this instance")
+
+        # Note: text field has a default size, but it will expand to fit initial contents. If the key is long,
+        # do not place it in this field as a initial argument, but instead as a separate method call.
+        self.public_key_field = ResizingText(self.decrypter_frame, min_height=5, width=50, text_padding=10,
+                                             alt_color=True)
+        self.copy_button = FlatButton(self.decrypter_frame, text="Copy to clipboard", font=("Segoe UI", 12),
+                                      command=self._copy_key)
 
         self.decryption_label.grid(row=0, column=1, columnspan=3, pady=(40, 200))
         self.decrypter_file_label.grid(row=2, column=2)
         self.decrypter_file_button.grid(row=3, column=2, pady=(0, 200))
         self.decrypt_button.grid(row=4, column=2, pady=(0, 20))
-        self.decrypter_key_label.grid(row=5, column=2)
-        self.decrypter_key_field.grid(row=6, column=1, columnspan=3)
+        self.public_key_label.grid(row=5, column=2)
+        self.public_key_field.grid(row=6, column=1, columnspan=3)
+        self.copy_button.grid(row=7, column=2, pady=(20, 0))
 
         # self.encrypter_frame.rowconfigure(0, weight=1)
         # self.encrypter_frame.rowconfigure(4, weight=1)
@@ -135,7 +141,7 @@ class AsyncWindow(tk.Tk):
         # These lines use an unimplemented function. Switch them to using the stuff in the encryption folder.
         decrypted_binary_string, name = await asyncio.to_thread(EncryptionManagement.decrypt_file,
                                                                 self.file_to_decrypt,
-                                                                self.decrypter_key_field.get_text())
+                                                                self.public_key_field.get_text())
         new_file_name = fd.asksaveasfilename(
             confirmoverwrite=True,
             filetypes=[('All Files', '*.*')],
@@ -145,6 +151,10 @@ class AsyncWindow(tk.Tk):
         if new_file_name != '':
             with open(new_file_name, "wb") as nfile:
                 nfile.write(decrypted_binary_string)
+
+    def _copy_key(self):
+        self.clipboard_clear()
+        self.clipboard_append(self.public_key_field.get_text())
 
     def clear_window(self, destroy=True, grid=True):
         """Clears the visible window of all widgets. Destroys the widgets if specified.
