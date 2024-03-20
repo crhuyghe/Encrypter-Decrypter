@@ -158,10 +158,7 @@ def addRoundKey(state, key):
     def xor(x, y):
         return hex(int(x, 16) ^ int(y, 16))[2:].zfill(2)
 
-    for i in range(0, 4):
-        for j in range(0, 4):
-            state[i][j] = xor(state[i][j], key[i][j])
-    return state
+    return list(map(lambda x, y: list(map(xor, x, y)), state, key))
 
 # Generate next round based on previous key
 def expandKey(key, round):
