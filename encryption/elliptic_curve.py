@@ -1,5 +1,3 @@
-from sympy import mod_inverse
-
 # Curve characteristics as detailed by SECG's secp128r2
 
 p = 0xfffffffdffffffffffffffffffffffff
@@ -19,10 +17,10 @@ def scalar_multiply(n, P):
   
         # Point double
         if P == Q:
-            lam = (3 * x_p ** 2 + a) * mod_inverse(2 * y_p, p)
+            lam = (3 * x_p ** 2 + a) * pow(2 * y_p, -1, p)
         # Point add
         else:
-            lam = (y_q - y_p) * mod_inverse(x_q - x_p, p)
+            lam = (y_q - y_p) * pow(x_q - x_p, -1, p)
 
         x_r = (lam ** 2 - x_p - x_q) % p
         y_r = (lam * (x_p - x_r) - y_p) % p
