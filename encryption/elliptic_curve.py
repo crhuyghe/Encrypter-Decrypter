@@ -5,6 +5,8 @@ a = 0xd6031998d1b3bbfebf59cc9bbff9aee1
 G = (0x7b6aa5d85e572983e6fb32a7cdebc140, 0x27b6916a894d3aee7106fe805fc34b44)
 
 def scalar_multiply(n, P):
+    def mod_inverse(k):
+        return pow(k, -1, p)
 
     def point_add(P, Q):
         if P is None:
@@ -17,10 +19,10 @@ def scalar_multiply(n, P):
   
         # Point double
         if P == Q:
-            lam = (3 * x_p ** 2 + a) * pow(2 * y_p, -1, p)
+            lam = (3 * x_p ** 2 + a) * mod_inverse(2 * y_p)
         # Point add
         else:
-            lam = (y_q - y_p) * pow(x_q - x_p, -1, p)
+            lam = (y_q - y_p) * mod_inverse(x_q - x_p)
 
         x_r = (lam ** 2 - x_p - x_q) % p
         y_r = (lam * (x_p - x_r) - y_p) % p
