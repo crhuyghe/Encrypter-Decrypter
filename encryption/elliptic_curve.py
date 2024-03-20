@@ -26,10 +26,10 @@ def scalar_multiply(n, P):
         else:
             lam = (y_q - y_p) * mod_inverse(x_q - x_p)
 
-        x_r = (lam ** 2 - x_p - x_q) % p
-        y_r = (lam * (x_p - x_r) - y_p) % p
+        x_r = lam ** 2 - x_p - x_q
+        y_r = lam * (x_p - x_r) - y_p
 
-        return (x_r, y_r)
+        return (x_r % p, y_r % p)
 
     result = None
 
