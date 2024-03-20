@@ -2,7 +2,8 @@
 
 p = 0xfffffffdffffffffffffffffffffffff
 a = 0xd6031998d1b3bbfebf59cc9bbff9aee1
-G = (0x7b6aa5d85e572983e6fb32a7cdebc140, 0x27b6916a894d3aee7106fe805fc34b44)
+x = 0x7b6aa5d85e572983e6fb32a7cdebc140
+y = 0x27b6916a894d3aee7106fe805fc34b44
 
 def scalar_multiply(n, P):
     def mod_inverse(k):
@@ -40,7 +41,7 @@ def scalar_multiply(n, P):
     return result
 
 def generatePublicKey(private):
-    return scalar_multiply(private, G)
+    return scalar_multiply(private, (x, y))
 
 def generateSharedSecret(private, coordinates):
     return scalar_multiply(private, coordinates)
