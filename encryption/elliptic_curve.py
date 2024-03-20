@@ -1,35 +1,46 @@
+from sympy import mod_inverse
+
 # Curve characteristics as detailed by SECG's secp128r2
 
 p = 0xfffffffdffffffffffffffffffffffff
 a = 0xd6031998d1b3bbfebf59cc9bbff9aee1
 G = (0x7b6aa5d85e572983e6fb32a7cdebc140, 0x27b6916a894d3aee7106fe805fc34b44)
 
-def scalarMultiply(k, P):
-    def pointAdd(P, Q):
+def scalar_multiply(n, P):
+
+    def point_add(P, Q):
         if P is None:
             return Q
         if Q is None:
             return P
 
+        x_p, y_p = P
+        x_q, y_q = Q
+  
+        # Point double
         if P == Q:
-            lam = (3 * P[0] * P[0] + a) * pow(2 * P[1], -1, p)
+            lam = (3 * x_p ** 2 + a) * mod_inverse(2 * y_p, p)
+        # Point add
         else:
-            lam = (Q[1] - P[1]) * pow(Q[0] - P[0], -1, p)
+            lam = (y_q - y_p) * mod_inverse(x_q - x_p, p)
 
-        x = (lam * lam - P[0] - Q[0]) % p
-        y = (lam * (P[0] - x) - P[1]) % p
+        x_r = (lam ** 2 - x_p - x_q) % p
+        y_r = (lam * (x_p - x_r) - y_p) % p
 
-        return (x, y)
+        return (x_r, y_r)
 
     result = None
-    for bit in bin(k)[2:]:
-        result = pointAdd(result, result)
+
+    # Double and add method
+    for bit in bin(n)[2:]:
+        result = point_add(result, result)
         if bit == '1':
-            result = pointAdd(result, P)
+            result = point_add(result, P)
+
     return result
 
 def generatePublicKey(private):
-    return scalarMultiply(private, G)
+    return scalar_multiply(private, G)
 
 def generateSharedSecret(private, coordinates):
-    return scalarMultiply(private, coordinates)
+    return scalar_multiply(private, coordinates)
