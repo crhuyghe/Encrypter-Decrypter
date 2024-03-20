@@ -1,53 +1,48 @@
 # Curve characteristics as detailed by SECG's secp128r2
 
-class EllipticCurve:
-    def __init__(self, p, a, b, g_x, g_y, order, cofactor):
-        self.p = p
-        self.a = a
-        self.b = b
-        self.g_x = g_x
-        self.g_y = g_y
-        self.order = order
-        self.cofactor = cofactor
+p = 0xfffffffdffffffffffffffffffffffff
+a = 0xd6031998d1b3bbfebf59cc9bbff9aee1
+x = 0x7b6aa5d85e572983e6fb32a7cdebc140
+y = 0x27b6916a894d3aee7106fe805fc34b44
+G = (x, y)
 
-    def point_add(self, P, Q):
+def scalar_multiply(n, P):
+    def mod_inverse(k):
+        return pow(k, -1, p)
+
+    def point_add(P, Q):
         if P is None:
             return Q
         if Q is None:
             return P
 
+        x_p, y_p = P
+        x_q, y_q = Q
+  
+        # Point double
         if P == Q:
-            lam = (3 * P[0] * P[0] + self.a) * pow(2 * P[1], -1, self.p)
+            lam = (3 * x_p ** 2 + a) * mod_inverse(2 * y_p)
+        # Point add
         else:
-            lam = (Q[1] - P[1]) * pow(Q[0] - P[0], -1, self.p)
+            lam = (y_q - y_p) * mod_inverse(x_q - x_p)
 
-        x = (lam * lam - P[0] - Q[0]) % self.p
-        y = (lam * (P[0] - x) - P[1]) % self.p
+        x_r = lam ** 2 - x_p - x_q
+        y_r = lam * (x_p - x_r) - y_p
 
-        return (x, y)
+        return (x_r % p, y_r % p)
 
-    def scalar_multiply(self, k, P):
-        result = None
-        for bit in bin(k)[2:]:
-            result = self.point_add(result, result)
-            if bit == '1':
-                result = self.point_add(result, P)
-        return result
+    result = None
 
-curve_params = {
-    "p": 0xfffffffdffffffffffffffffffffffff,
-    "a": 0xd6031998d1b3bbfebf59cc9bbff9aee1,
-    "b": 0x5eeefca380d02919dc2c6558bb6d8a5d,
-    "g_x": 0x7b6aa5d85e572983e6fb32a7cdebc140,
-    "g_y": 0x27b6916a894d3aee7106fe805fc34b44,
-    "order": 0x3fffffff7fffffffbe0024720613b5a3,
-    "cofactor": 0x04,
-}
+    # Double and add method
+    for bit in bin(n)[2:]:
+        result = point_add(result, result)
+        if bit == '1':
+            result = point_add(result, P)
 
-curve = EllipticCurve(**curve_params)
+    return result
 
 def generatePublicKey(private):
-    return curve.scalar_multiply(private, (curve_params["g_x"], curve_params["g_y"]))
+    return scalar_multiply(private, G)
 
 def generateSharedSecret(private, coordinates):
-    return curve.scalar_multiply(private, coordinates)
+    return scalar_multiply(private, coordinates)

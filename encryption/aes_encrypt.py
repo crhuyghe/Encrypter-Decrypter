@@ -68,5 +68,3 @@ def decrypt(data, key):
         decryptedMessage += decrypt_block(block, roundKeys)
     
     return decryptedMessage.lstrip('0')
-        
-
