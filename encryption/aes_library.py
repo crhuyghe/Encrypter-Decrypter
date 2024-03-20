@@ -186,4 +186,3 @@ def expandKey(key, round):
 
     a, b, c, d = g(key)
     return [rowxor(a), rowxor(b), rowxor(c), rowxor(d)]
-
