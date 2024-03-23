@@ -44,5 +44,5 @@ def scalar_multiply(n, P):
 def generatePublicKey(private):
     return scalar_multiply(private, G)
 
-def generateSharedSecret(private, coordinates):
-    return scalar_multiply(private, coordinates)
+def generateSharedSecret(private, public):
+    return scalar_multiply(private, public)
