@@ -49,6 +49,10 @@ class AsyncWindow(tk.Tk):
         self.encrypter_file_button = FlatButton(self.encrypter_frame, text="Open file", font=("Segoe UI", 12),
                                                 command=self.select_unencrypted_file)
 
+        self.encrypter_selected_file_text = tk.StringVar()
+        self.encrypter_selected_file_label = ttk.Label(self.encrypter_frame,
+                                                       textvariable=self.encrypter_selected_file_text)
+
         self.encrypt_button = FlatButton(self.encrypter_frame, text="Encrypt", font=("Segoe UI", 12),
                                          command=lambda: self.run_as_task(self.encrypt))
         self.encrypter_key_label = ttk.Label(self.encrypter_frame,
@@ -57,12 +61,17 @@ class AsyncWindow(tk.Tk):
                                                 width=50, text_padding=10)
         self.encrypter_key_field.toggle_modification()
 
+        self.copy_button = FlatButton(self.encrypter_frame, text="Copy This Instance's Public Key",
+                                      font=("Segoe UI", 12), command=self._copy_key)
+
         self.encryption_label.grid(row=0, column=1, columnspan=3, pady=(40, 200))
         self.encrypter_file_label.grid(row=2, column=2)
-        self.encrypter_file_button.grid(row=3, column=2, pady=(0, 200))
-        self.encrypt_button.grid(row=4, column=2, pady=(0, 20))
-        self.encrypter_key_label.grid(row=5, column=2)
-        self.encrypter_key_field.grid(row=6, column=1, columnspan=3)
+        self.encrypter_file_button.grid(row=3, column=2)
+        self.encrypter_selected_file_label.grid(row=4, column=2, pady=(0, 180))
+        self.encrypt_button.grid(row=5, column=2, pady=(0, 20))
+        self.encrypter_key_label.grid(row=6, column=2)
+        self.encrypter_key_field.grid(row=7, column=1, columnspan=3)
+        self.copy_button.grid(row=8, column=2, pady=(20, 0))
 
         self.decrypter_frame = ttk.Frame(self.main_frame)
 
@@ -71,6 +80,10 @@ class AsyncWindow(tk.Tk):
                                               padding=10)
         self.decrypter_file_button = FlatButton(self.decrypter_frame, text="Open file", font=("Segoe UI", 12),
                                                 command=self.select_encrypted_file)
+
+        self.decrypter_selected_file_text = tk.StringVar()
+        self.decrypter_selected_file_label = ttk.Label(self.decrypter_frame,
+                                                       textvariable=self.decrypter_selected_file_text)
 
         self.decrypt_button = FlatButton(self.decrypter_frame, text="Decrypt", font=("Segoe UI", 12),
                                          command=lambda: self.run_as_task(self.decrypt))
@@ -81,16 +94,14 @@ class AsyncWindow(tk.Tk):
                                                 width=50, text_padding=10)
         self.decrypter_key_field.toggle_modification()
 
-        self.copy_button = FlatButton(self.encrypter_frame, text="Copy This Instance's Public Key", font=("Segoe UI", 12),
-                                      command=self._copy_key)
 
         self.decryption_label.grid(row=0, column=1, columnspan=3, pady=(40, 200))
         self.decrypter_file_label.grid(row=2, column=2)
-        self.decrypter_file_button.grid(row=3, column=2, pady=(0, 200))
-        self.decrypt_button.grid(row=4, column=2, pady=(0, 20))
-        self.decrypter_key_label.grid(row=5, column=2)
-        self.decrypter_key_field.grid(row=6, column=1, columnspan=3)
-        self.copy_button.grid(row=7, column=2, pady=(20, 0))
+        self.decrypter_file_button.grid(row=3, column=2)
+        self.decrypter_selected_file_label.grid(row=4, column=2, pady=(0, 180))
+        self.decrypt_button.grid(row=5, column=2, pady=(0, 20))
+        self.decrypter_key_label.grid(row=6, column=2)
+        self.decrypter_key_field.grid(row=7, column=1, columnspan=3)
 
         # self.encrypter_frame.rowconfigure(0, weight=1)
         # self.encrypter_frame.rowconfigure(4, weight=1)
@@ -111,12 +122,14 @@ class AsyncWindow(tk.Tk):
     def select_unencrypted_file(self):
         """Selects a file for encryption"""
         file_name = fd.askopenfilename(filetypes=[('All Files', '*.*')])
+        self.encrypter_selected_file_text.set("Selected file: " + file_name[file_name.rindex("/") + 1:])
         if len(file_name) > 0:
             self.file_to_encrypt = file_name
 
     def select_encrypted_file(self):
         """Selects a file for decryption"""
         file_name = fd.askopenfilename(filetypes=[('All Files', '*.*')])
+        self.decrypter_selected_file_text.set("Selected file: " + file_name[file_name.rindex("/") + 1:])
         if len(file_name) > 0:
             self.file_to_decrypt = file_name
 
@@ -154,7 +167,7 @@ class AsyncWindow(tk.Tk):
 
     def _copy_key(self):
         self.clipboard_clear()
-        self.clipboard_append(self.public_key_field.get_text())
+        self.clipboard_append("")  # Put the public key here
 
     def clear_window(self, destroy=True, grid=True):
         """Clears the visible window of all widgets. Destroys the widgets if specified.
