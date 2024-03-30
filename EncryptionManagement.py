@@ -1,5 +1,5 @@
 # This file contains operations for encrypting and decrypting binary strings
-from encryption.aes_encrypt import encrypt, decrypt
+from encryption import encrypt, decrypt
 import binascii
 import os
 import random
