@@ -60,6 +60,8 @@ class AsyncWindow(tk.Tk):
         self.encrypter_selected_file_label = ttk.Label(self.encrypter_frame,
                                                        textvariable=self.encrypter_selected_file_text)
 
+        self.encrypter_loading_label = ttk.Label(self.encrypter_frame, text="Encrypting...", foreground="#24272b")
+
         self.encrypt_button = FlatButton(self.encrypter_frame, text="Encrypt", font=("Segoe UI", 12),
                                          command=lambda: self.run_as_task(self.encrypt))
         self.encrypter_key_label = ttk.Label(self.encrypter_frame,
@@ -75,10 +77,11 @@ class AsyncWindow(tk.Tk):
         self.encrypter_file_label.grid(row=2, column=2)
         self.encrypter_file_button.grid(row=3, column=2)
         self.encrypter_selected_file_label.grid(row=4, column=2, pady=(0, 180))
-        self.encrypt_button.grid(row=5, column=2, pady=(0, 20))
-        self.encrypter_key_label.grid(row=6, column=2)
-        self.encrypter_key_field.grid(row=7, column=1, columnspan=3)
-        self.copy_button.grid(row=10, column=2, pady=(20, 0))
+        self.encrypter_loading_label.grid(row=5, column=2)
+        self.encrypt_button.grid(row=6, column=2, pady=(0, 20))
+        self.encrypter_key_label.grid(row=7, column=2)
+        self.encrypter_key_field.grid(row=8, column=1, columnspan=3)
+        self.copy_button.grid(row=9, column=2, pady=(20, 0))
 
         self.decrypter_frame = ttk.Frame(self.main_frame)
 
@@ -92,6 +95,7 @@ class AsyncWindow(tk.Tk):
         self.decrypter_selected_file_label = ttk.Label(self.decrypter_frame,
                                                        textvariable=self.decrypter_selected_file_text)
 
+        self.decrypter_loading_label = ttk.Label(self.decrypter_frame, text="Decrypting...", foreground="#24272b")
         self.decrypt_button = FlatButton(self.decrypter_frame, text="Decrypt", font=("Segoe UI", 12),
                                          command=lambda: self.run_as_task(self.decrypt))
         self.decrypter_key_label = ttk.Label(self.decrypter_frame,
@@ -105,9 +109,10 @@ class AsyncWindow(tk.Tk):
         self.decrypter_file_label.grid(row=2, column=2)
         self.decrypter_file_button.grid(row=3, column=2)
         self.decrypter_selected_file_label.grid(row=4, column=2, pady=(0, 180))
-        self.decrypt_button.grid(row=5, column=2, pady=(0, 20))
-        self.decrypter_key_label.grid(row=6, column=2)
-        self.decrypter_key_field.grid(row=7, column=1, columnspan=3)
+        self.decrypter_loading_label.grid(row=5, column=2)
+        self.decrypt_button.grid(row=6, column=2, pady=(0, 20))
+        self.decrypter_key_label.grid(row=7, column=2)
+        self.decrypter_key_field.grid(row=8, column=1, columnspan=3)
 
         # self.encrypter_frame.rowconfigure(0, weight=1)
         # self.encrypter_frame.rowconfigure(4, weight=1)
@@ -142,43 +147,55 @@ class AsyncWindow(tk.Tk):
 
     async def encrypt(self):
         """Starts process of encrypting the selected file"""
-        new_file_name = fd.asksaveasfilename(
-            confirmoverwrite=True,
-            filetypes=[('All Files', '*.*')],
-            defaultextension=None,
-            title="Save encrypted file",
-        )
-        if new_file_name != '':
-            # These lines use an unimplemented function. Switch them to using the stuff in the encryption folder.
+        if self.file_to_encrypt != "":
             public = self.encrypter_key_field.get_text().split(" ")
-            for i in range(len(public)):
-                public[i] = int(public[i])
-            print(public)
-            shared_secret = generateSharedSecret(self.private, public)
-            encrypted_string, key = await asyncio.to_thread(EncryptionManagement.encrypt_file, self.file_to_encrypt, hex(shared_secret[0])[2:].zfill(32))
-            # self.encrypter_key_field.change_text(key)
-            with open(new_file_name, "w") as nfile:
-                nfile.write(encrypted_string)
+            try:
+                for i in range(len(public)):
+                    public[i] = int(public[i])
+                self.encrypter_loading_label.configure(foreground="#b6bfcc")
+                shared_secret = generateSharedSecret(self.private, public)
+
+                encrypted_string, key = await asyncio.to_thread(EncryptionManagement.encrypt_file, self.file_to_encrypt, hex(shared_secret[0])[2:].zfill(32))
+                self.encrypter_loading_label.configure(foreground="#24272b")
+            except Exception as e:
+                print(e)
+                return
+            new_file_name = fd.asksaveasfilename(
+                confirmoverwrite=True,
+                filetypes=[('All Files', '*.*')],
+                defaultextension=None,
+                title="Save encrypted file",
+            )
+            if new_file_name != '':
+                with open(new_file_name, "w") as nfile:
+                    nfile.write(encrypted_string)
 
     async def decrypt(self):
-        """Starts process of decrypting the selected file"""
-        # These lines use an unimplemented function. Switch them to using the stuff in the encryption folder.
-        public = self.decrypter_key_field.get_text().split(" ")
-        for i in range(len(public)):
-            public[i] = int(public[i])
-        shared_secret = generateSharedSecret(self.private, public)
-        decrypted_binary_string, name = await asyncio.to_thread(EncryptionManagement.decrypt_file,
-                                                                self.file_to_decrypt,
-                                                                hex(shared_secret[0])[2:].zfill(32))
-        new_file_name = fd.asksaveasfilename(
-            confirmoverwrite=True,
-            filetypes=[('All Files', '*.*')],
-            initialfile=name,
-            title="Save encrypted file",
-        )
-        if new_file_name != '':
-            with open(new_file_name, "wb") as nfile:
-                nfile.write(decrypted_binary_string)
+        if self.file_to_decrypt != "":
+            """Starts process of decrypting the selected file"""
+            # These lines use an unimplemented function. Switch them to using the stuff in the encryption folder.
+            public = self.decrypter_key_field.get_text().split(" ")
+            try:
+                for i in range(len(public)):
+                    public[i] = int(public[i])
+                self.decrypter_loading_label.configure(foreground="#b6bfcc")
+                shared_secret = generateSharedSecret(self.private, public)
+                decrypted_binary_string, name = await asyncio.to_thread(EncryptionManagement.decrypt_file,
+                                                                        self.file_to_decrypt,
+                                                                        hex(shared_secret[0])[2:].zfill(32))
+                self.decrypter_loading_label.configure(foreground="#24272b")
+            except Exception as e:
+                print(e)
+                return
+            new_file_name = fd.asksaveasfilename(
+                confirmoverwrite=True,
+                filetypes=[('All Files', '*.*')],
+                initialfile=name,
+                title="Save encrypted file",
+            )
+            if new_file_name != '':
+                with open(new_file_name, "wb") as nfile:
+                    nfile.write(decrypted_binary_string)
 
     def _copy_key(self):
         key = generatePublicKey(self.private)
