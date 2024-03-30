@@ -128,15 +128,15 @@ class AsyncWindow(tk.Tk):
     def select_unencrypted_file(self):
         """Selects a file for encryption"""
         file_name = fd.askopenfilename(filetypes=[('All Files', '*.*')])
-        self.encrypter_selected_file_text.set("Selected file: " + file_name[file_name.rindex("/") + 1:])
         if len(file_name) > 0:
+            self.encrypter_selected_file_text.set("Selected file: " + file_name[file_name.rindex("/") + 1:])
             self.file_to_encrypt = file_name
 
     def select_encrypted_file(self):
         """Selects a file for decryption"""
         file_name = fd.askopenfilename(filetypes=[('All Files', '*.*')])
-        self.decrypter_selected_file_text.set("Selected file: " + file_name[file_name.rindex("/") + 1:])
         if len(file_name) > 0:
+            self.decrypter_selected_file_text.set("Selected file: " + file_name[file_name.rindex("/") + 1:])
             self.file_to_decrypt = file_name
 
 
