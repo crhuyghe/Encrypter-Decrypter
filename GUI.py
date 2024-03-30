@@ -164,6 +164,7 @@ class AsyncWindow(tk.Tk):
                 confirmoverwrite=True,
                 filetypes=[('All Files', '*.*')],
                 defaultextension=None,
+                initialfile=self.file_to_encrypt[self.file_to_encrypt.rindex("/") + 1:],
                 title="Save encrypted file",
             )
             if new_file_name != '':
@@ -190,7 +191,7 @@ class AsyncWindow(tk.Tk):
             new_file_name = fd.asksaveasfilename(
                 confirmoverwrite=True,
                 filetypes=[('All Files', '*.*')],
-                initialfile=name,
+                initialfile=self.file_to_decrypt[self.file_to_decrypt.rindex("/") + 1:],
                 title="Save encrypted file",
             )
             if new_file_name != '':
@@ -259,17 +260,3 @@ class AsyncWindow(tk.Tk):
                     task.cancel(msg=None)
         self._loop.stop()
         self.destroy()
-
-def make_private_key():
-    if not os.path.exists("private_key.txt"):
-        with open("private_key.txt", "w") as f:
-            f.write(str(random.randint(1,10000000)))
-            f.close()
-
-
-if __name__ == "__main__":
-    make_private_key()
-    loop = asyncio.get_event_loop()
-    app = AsyncWindow(loop)
-    loop.run_forever()
-    loop.close()

@@ -1,6 +1,8 @@
 # This file contains operations for encrypting and decrypting binary strings
 from encryption.aes_encrypt import encrypt, decrypt
 import binascii
+import os
+import random
 
 def encrypt_file(file_path, key):
     """Reads a file and encrypts it into a string. Returns the encrypted file and encryption key."""
@@ -28,3 +30,9 @@ def decrypt_file(file_path, key):
 
     bin_string = binascii.unhexlify(bytes(hex_string.encode("utf-8")))
     return bin_string, name
+
+def make_private_key():
+    if not os.path.exists("private_key.txt"):
+        with open("private_key.txt", "w") as f:
+            f.write(str(random.randint(1,10000000)))
+            f.close()

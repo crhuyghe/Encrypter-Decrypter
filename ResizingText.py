@@ -24,7 +24,7 @@ class ResizingText(ttk.Frame):
         else:
             self._empty = False
 
-        if type(text_padding) == int or type(text_padding) == float:
+        if type(text_padding) is int or type(text_padding) is float:
             text_padding = (text_padding, text_padding)
         if not font:
             font = ('Segoe UI Symbol', 16)
