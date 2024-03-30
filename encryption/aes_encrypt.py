@@ -1,4 +1,4 @@
-from aes_library import *
+from encryption.aes_library import *
 
 def encrypt(data, key):
     def padHex(data):

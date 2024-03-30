@@ -1,7 +1,8 @@
 # This file contains operations for encrypting and decrypting binary strings
+from encryption.aes_encrypt import encrypt, decrypt
 import binascii
 
-def encrypt_file(file_path):
+def encrypt_file(file_path, key):
     """Reads a file and encrypts it into a string. Returns the encrypted file and encryption key."""
     with open(file_path, mode="rb") as file:
         bin_str = file.read()
@@ -11,7 +12,7 @@ def encrypt_file(file_path):
     # Fancy encryption stuff here
     # Make it so that the file name is also encrypted and stored in the file for later retrieval
 
-    key = "This is a test key!"
+    hex_str = encrypt(hex_str, key)
 
     return hex_str, key
 
@@ -20,7 +21,8 @@ def decrypt_file(file_path, key):
     with open(file_path, mode="r") as file:
         hex_string = file.read()
 
-    # Fancy decryption stuff here
+    # Fancy decryption stuff here'
+    hex_string = decrypt(hex_string, key)
     # Have it retrieve the file name somehow
     name = "Test_file.txt"
 
