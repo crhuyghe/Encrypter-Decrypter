@@ -87,7 +87,7 @@ class AsyncWindow(tk.Tk):
         self.decrypter_frame = ttk.Frame(self.main_frame)
 
         self.decryption_label = ttk.Label(self.decrypter_frame, text="Decryption", font=("Segoe UI Bold", 30))
-        self.decrypter_file_label = ttk.Label(self.decrypter_frame, text="Choose a encrypted file to decrypt",
+        self.decrypter_file_label = ttk.Label(self.decrypter_frame, text="Choose an encrypted file to decrypt",
                                               padding=10)
         self.decrypter_file_button = FlatButton(self.decrypter_frame, text="Open file", font=("Segoe UI", 12),
                                                 command=self.select_encrypted_file)
